@@ -15,7 +15,8 @@ class operators{
 			}
 
 		}
-		virtual void calculate(std::vector<int> array) {};
+		virtual void calculate(std::vector<int> array) {
+		};
 		double get(){
 			return this->result;
 		}
@@ -39,7 +40,7 @@ class plus : public operators{
 		this->tempRe = 0;
 	}	
 		
-	void calculate(std::vector<int> array, int method) {
+	void calculate(std::vector<int> array) override {
 	this->size = array.size();
 	
   	for(int i = 0; i < this->size; i++)
@@ -57,7 +58,7 @@ class minus : public operators{
 		this->size = 0;
 	}	
 	
-	void calculate(std::vector<int> array, int method){
+	void calculate(std::vector<int> array) override {
 	this->size = array.size();
 	this->tempRe = array[0];
 	
@@ -77,7 +78,7 @@ class mult : public operators{
 		this->tempRe = 0;
 	}	
 	
-	void calculate(std::vector<int> array, int method){
+	void calculate(std::vector<int> array) override {
 	this->size = array.size();
 	this->tempRe = 1;
 	
@@ -97,7 +98,7 @@ class divid : public operators{
 		this->tempRe = 0;
 	}	
 	
-	void calculate(std::vector<int> array, int method){
+	void calculate(std::vector<int> array) override {
 	this->size = array.size();
 	this->tempRe = array[0];
 	
@@ -135,7 +136,7 @@ class calculator{
 			switch(op){
 				case '+':{
 				plus p;
-				p.calculate(this->array, method);
+				p.calculate(this->array);
 				if (method == 1)
 				this->oldRe = this->oldRe + p.get();
 				else
@@ -145,7 +146,7 @@ class calculator{
 				
 				case '-':{
 				minus m;
-				m.calculate(this->array, method);
+				m.calculate(this->array);
 				if (method == 1)
 				this->oldRe = this->oldRe - m.get();
 				else
@@ -155,7 +156,7 @@ class calculator{
 				
 				case '*':{
 				mult mu;
-				mu.calculate(this->array, method);
+				mu.calculate(this->array);
 				if (method == 1)
 				this->oldRe = this->oldRe * mu.get();
 				else
@@ -165,7 +166,7 @@ class calculator{
   				
   				case '/':{
 				divid d;
-				d.calculate(this->array, method);
+				d.calculate(this->array);
 				if (method == 1)
 				this->oldRe = this->oldRe / d.get();
 				else
