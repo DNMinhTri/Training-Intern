@@ -1,2 +1,2 @@
 
-# Intern training tasks I had to do at Oryza Systems
+# Intern training tasks I did at Oryza Systems
