@@ -15,8 +15,8 @@ class operators{
 			delete result;	
 		}
 		
-		double get(){
-			return *result;
+		double* get(){
+			return result;
 		}
 				
 		void upd(double* tempRe){
@@ -24,7 +24,7 @@ class operators{
 		}
 
 		
-		virtual double simpcalc(double A, double B) const {
+		virtual double simpcalc(double* A, double* B) const {
 			return 0;
 		}
 };
@@ -37,8 +37,8 @@ class plus : public operators{
 	~plus(){
 	}	
 	
-	double simpcalc(double A, double B) const override {
-		return A + B;
+	double simpcalc(double* A, double* B) const override {
+		return *A + *B;
 	}
 };
 
@@ -50,8 +50,8 @@ class minus : public operators{
 	~minus(){
 	}
 	
-	double simpcalc(double A, double B) const override {
-	return A - B;
+	double simpcalc(double* A, double* B) const override {
+	return *A - *B;
 	}
 		
 };
@@ -64,8 +64,8 @@ class mult : public operators{
 	~mult(){
 	}
   	
-  	double simpcalc(double A, double B) const override {
-	return A * B;
+  	double simpcalc(double* A, double* B) const override {
+	return *A * *B;
 	}
   	
 };
@@ -78,8 +78,8 @@ class divid : public operators{
 	~divid(){
 	}
 	
-	double simpcalc(double A, double B) const override {
-	return A / B;
+	double simpcalc(double* A, double* B) const override {
+	return *A / *B;
 	}
 			
 };
@@ -144,7 +144,9 @@ class calculator{
 			//calculate by array
 			double* tempRe = new double((*array)[0]);
 			for (int i = 1; i < (*size); i++){
-				*tempRe = action->simpcalc(*tempRe, (*array)[i]); 
+				double* t = new double((*array)[i]);
+				*tempRe = action->simpcalc(tempRe, t); 
+				delete t;
 			}
 			
 			//Update stored value and delete temp
@@ -153,9 +155,9 @@ class calculator{
 			
 			//handlng old value if needed
 			if (*method == 1) {
-			*oldRe = action->simpcalc(*oldRe, action->get());
+			*oldRe = action->simpcalc(oldRe, action->get());
 			}
-			else *oldRe = action->get();
+			else *oldRe = *action->get();
 			
 			//done with operation
 			delete action;
