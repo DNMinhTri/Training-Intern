@@ -5,191 +5,172 @@
 #include <iterator>
 class operators{
 	private:
-		double result;
-		bool initialized;
+		double* result;
 	public:
 		operators(){
-			if (!initialized) {
-				this->result = 0;
-				initialized = true;
-			}
-
+			result = new double(0);
 		}
-		virtual void calculate(std::vector<int>* array) {};
+		
+		~operators(){
+			delete result;	
+		}
+		
 		double get(){
-			return this->result;
+			return *result;
 		}
-		
-		void resetVal(){
-			this->result = 0;
+				
+		void upd(double* tempRe){
+			*result = *tempRe;
 		}
+
 		
-		void upd(double tempRe){
-			this->result = tempRe;
+		virtual double simpcalc(double A, double B) const {
+			return 0;
 		}
 };
 
 class plus : public operators{
-	private:
-		int size;
-		double tempRe;
 	public:
 	plus(){
-		this->size = 0;
-		this->tempRe = 0;
-	}	
-		
-	void calculate(std::vector<int>* array) {
-	this->size = array->size();
+	}
 	
-  	for(int i = 0; i < this->size; i++)
-  		this->tempRe = this->tempRe + (*array)[i];	
-		upd(this->tempRe);
+	~plus(){
+	}	
+	
+	double simpcalc(double A, double B) const override {
+		return A + B;
 	}
 };
 
 class minus : public operators{
-	private:
-		int size;
-		double tempRe;
 	public:
 	minus(){
-		this->size = 0;
 	}	
 	
-	void calculate(std::vector<int>* array){
-	this->size = array->size();
-	this->tempRe = (*array)[0];
+	~minus(){
+	}
 	
-  	for(int i = 1; i < this->size; i++)
-  		this->tempRe = this->tempRe - (*array)[i];
-  		upd(this->tempRe);
-	}	
+	double simpcalc(double A, double B) const override {
+	return A - B;
+	}
+		
 };
 
 class mult : public operators{
-	private:
-		int size;
-		double tempRe;
 	public:
 	mult(){
-		this->size = 0;
-		this->tempRe = 0;
 	}	
 	
 	~mult(){
 	}
-	
-	void calculate(std::vector<int>* array){
-	this->size = array->size();
-	this->tempRe = 1;
-	
-  	for(int i = 0; i < this->size; i++)
-  		this->tempRe = this->tempRe * (*array)[i];
-  		upd(this->tempRe);
-  }
+  	
+  	double simpcalc(double A, double B) const override {
+	return A * B;
+	}
+  	
 };
 
 class divid : public operators{
-	private:
-		int size;
-		double tempRe;
 	public:
 	divid(){
-		this->size = 0;
-		this->tempRe = 0;
-	}	
+	}
 	
-	void calculate(std::vector<int>* array){
-	this->size = array->size();
-	this->tempRe = (*array)[0];
+	~divid(){
+	}
 	
-  	for(int i = 1; i < this->size; i++)
-  		this->tempRe = this->tempRe / (*array)[i];
-  		upd(this->tempRe);
-	}		
+	double simpcalc(double A, double B) const override {
+	return A / B;
+	}
+			
 };
 
 class calculator{
 	private:
-		double oldRe;
+		double* oldRe;
+		int* size;
 		std::vector<int>* array;
-		char op;
-		int size;
 	public:
-		calc(){
-			this->oldRe = 0;
+		calculator(){
+			oldRe = new double;
+			size = new int;
+			array = NULL;
+		}
+		
+		~calculator(){
+			delete oldRe;
+			delete size;
+			delete array;
 		}
 		
 		void getArray(std::vector<int>* arr){
 			this->array = arr;
-			this->size = arr->size();
+			*size = arr->size();
 		}
 		
 		double result(){
-			return this->oldRe;
+			return *oldRe;
 		}
 		
 		void MethodAUpd(){
 			array->insert(array->begin(), this->result());
+			*size = array->size();
 		}
 		
-		void Work(char* op, int method){
+		void Work(char* op, int* method){
+			operators* action;
+			
 			switch(*op){
 				case '+':{
-				plus p;
-				p.calculate(this->array);
-				if (method == 1)
-				this->oldRe = this->oldRe + p.get();
-				else
-				this->oldRe = p.get();
+				action = new plus;
 				}
 				break;
 				
 				case '-':{
-				minus m;
-				m.calculate(this->array);
-				if (method == 1)
-				this->oldRe = this->oldRe - m.get();
-				else
-				this->oldRe = m.get();
+				action = new minus;
 				}
 				break;	
 				
 				case '*':{
-				mult mu;
-				mu.calculate(this->array);
-				if (method == 1)
-				this->oldRe = this->oldRe * mu.get();
-				else
-				this->oldRe = mu.get();
-				mu.~mult();
+				action = new mult;
 				}
   				break;
   				
   				case '/':{
-				divid d;
-				d.calculate(this->array);
-				if (method == 1)
-				this->oldRe = this->oldRe / d.get();
-				else
-				this->oldRe = d.get();
+				action = new divid;
 				}
   				break;
 			}
+			
+			//calculate by array
+			double* tempRe = new double((*array)[0]);
+			for (int i = 1; i < (*size); i++){
+				*tempRe = action->simpcalc(*tempRe, (*array)[i]); 
+			}
+			
+			//Update stored value and delete temp
+			action->upd(tempRe);
+			delete tempRe;
+			
+			//handlng old value if needed
+			if (*method == 1) {
+			*oldRe = action->simpcalc(*oldRe, action->get());
+			}
+			else *oldRe = action->get();
+			
+			//done with operation
+			delete action;
 		}
 				
 };
 
 int main () {
 	//flags for looping and old result
-  int rflag = 1;
-  int firsttime = 1;
+  int* rflag = new int(1);
+  bool firsttime = true;
   	//calc constructor
-  calculator calc;
-  
+  calculator* calc = new calculator;
   	//loop start
-  while (rflag == 1) {
+  while (*rflag == 1) {
   	
 
   	
@@ -200,17 +181,19 @@ int main () {
   
   	//convert string to string stream to vector
   std::istringstream iss (string);
-  std::vector<int> values((std::istream_iterator<int>(iss)),{});
-  std::vector<int>* vaptr = &values;
+  	//no longer need string
+  string.clear();
   
-  calc.getArray(vaptr);
+  std::vector<int>* vaptr = new std::vector<int>((std::istream_iterator<int>(iss)),{});
+  
+  calc->getArray(vaptr);
   
     //method for rerun, default 0/0
-  int method = 0;
+  int* method = new int(0);
   
   
 	//ON RERUN: select method, old -> totalnew or old -> new -> new -> new  
-	if (firsttime == 0) {
+	if (!firsttime) {
 		int invalid = 1;
 		while (invalid == 1){
 		invalid = 0;
@@ -218,10 +201,10 @@ int main () {
 		std::cout<<"Select a method: "<<std::endl<<"A - Insert the old result to the front of the vector"<<std::endl<<"B - Calculate the old result with the total result from the new vector"<<std::endl<<"--> ";
 		std::cin>>choice;
 			if (choice == 'A') {
-				method = 0;
-				calc.MethodAUpd();
+				*method = 0;
+				calc->MethodAUpd();
 			}
-			else if (choice == 'B') method = 1;
+			else if (choice == 'B') *method = 1;
 			else {
 				std::cout<<"Invalid choice!"<<std::endl;
 				invalid = 1;
@@ -231,43 +214,59 @@ int main () {
 	
   	//input operation
   char* op = new char;
-  int iflag = 1;
+  int* iflag = new int(1);
   
-  	//LOOP GET OP
-  while (iflag == 1) {
+  	//loop to get op with iflag
+  while (*iflag == 1) {
 
 	//get op
   std::cout<<"Enter Operator: ";
   std::cin>>*op;
  	//stop loop from rerunning
-  if (*op == '+' || *op == '-' || *op == '*' || *op == '/') iflag = 0;
-  else iflag = 1;
+  if (*op == '+' || *op == '-' || *op == '*' || *op == '/') *iflag = 0;
+  else *iflag = 1;
 	}
-  calc.Work(op, method);
-  std::cout<<"Result: "<<calc.result()<<std::endl;
+	//calc work
+  calc->Work(op, method);
+  
+ 	//delete method
+  delete method;
+  
+  	//print result
+  std::cout<<"Result: "<<calc->result()<<std::endl;
 
-
-  while (iflag == 0) {
-  iflag = 1;
+	//loop check for continue, reusing iflag
+  while (*iflag == 0) {
+  *iflag = 1;
   std::cout<<std::endl<<"Again? (Y/N)"<<std::endl;
-  char re;
-  std::cin>>re;
-  switch(re) {
+  char* re;
+  re = new char;
+  std::cin>>*re;
+  switch(*re) {
   	case 'Y':
-  		rflag = 1;
+  		*rflag = 1;
   		break;
   	case 'N':
-  		rflag = 0;
+  		*rflag = 0;
   		break;
   	default:
   		std::cout<<"Invalid Respond"<<std::endl;
-  		iflag = 0;
+  		*iflag = 0;
   		break;
   		}
-  	}
-  firsttime = 0;
-  std::cin.ignore();
+  	
+  	//no longer need char
+  	delete re;	
+  	}	
+  	
+  	//delete iflag, first time false
+  	delete iflag;
+  	firsttime = false;
+  	std::cin.ignore();
 	}
+	//no longer looping
+	delete rflag;
+	delete calc;
 }
 	
 
