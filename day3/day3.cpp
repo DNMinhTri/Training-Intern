@@ -187,6 +187,7 @@ int main () {
   string.clear();
   
   std::vector<int>* vaptr = new std::vector<int>((std::istream_iterator<int>(iss)),{});
+  iss.clear();
   
   calc->getArray(vaptr);
   
@@ -233,6 +234,7 @@ int main () {
   
  	//delete method
   delete method;
+  delete op;
   
   	//print result
   std::cout<<"Result: "<<calc->result()<<std::endl;
