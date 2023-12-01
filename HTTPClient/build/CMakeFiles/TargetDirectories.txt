@@ -1,0 +1,3 @@
+/home/tri/Downloads/HTTPClient/build/CMakeFiles/my_mqtt_app.dir
+/home/tri/Downloads/HTTPClient/build/CMakeFiles/edit_cache.dir
+/home/tri/Downloads/HTTPClient/build/CMakeFiles/rebuild_cache.dir
